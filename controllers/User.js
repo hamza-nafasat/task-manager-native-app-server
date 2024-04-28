@@ -132,8 +132,8 @@ export const updateTask = async (req, res) => {
         if (!user) {
             return res.status(400).json({ success: false, message: "User not found" });
         }
-        user.task = user.tasks.find((task) => task._id.toString() === taskId.toString());
-        user.task.completed = !user.task.completed;
+        let task = user.tasks.find((task) => task._id.toString() === taskId.toString());
+        task.completed = !task.completed;
         await user.save();
         res.status(200).json({ success: true, message: "Task Updated successfully" });
     } catch (error) {
