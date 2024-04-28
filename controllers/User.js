@@ -3,6 +3,7 @@ import getDataUri, { removeFromCloudinary, uploadOnCloudinary } from "../utils/c
 import { sendMail } from "../utils/sendMail.js";
 import { sendToken } from "../utils/sendToken.js";
 import cloudinary from "cloudinary";
+import fs from "fs";
 
 export const register = async (req, res) => {
     try {
@@ -179,7 +180,7 @@ export const updateProfile = async (req, res) => {
         if (name) user.name = name;
         if (avatar) {
             await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-            const mycloud = await cloudinary.v2.uploader.upload(avatar);
+            const mycloud = uploadOnCloudinary(avatar, "user-avatars");
             fs.rmSync("./tmp", { recursive: true });
             user.avatar = {
                 public_id: mycloud.public_id,
