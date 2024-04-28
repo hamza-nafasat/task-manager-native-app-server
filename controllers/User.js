@@ -160,7 +160,7 @@ export const updateProfile = async (req, res) => {
 
         if (name) user.name = name;
         if (avatar) {
-            await removeFromCloudinary(user.avatar.public_id);
+            // await removeFromCloudinary(user.avatar.public_id);
             const myCloud = await uploadOnCloudinary(avatar, "user-avatars");
             if (!myCloud?.public_id || !myCloud?.secure_url)
                 return next(new CustomError("Error While Uploading File", 500));
