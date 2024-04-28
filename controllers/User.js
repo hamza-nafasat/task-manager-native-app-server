@@ -154,14 +154,11 @@ export const updateProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         const { name } = req.body;
-        const avatar = req.file.url;
+        const avatar = req.files.avatar.tempFilePath;
         console.log(avatar);
         if (name) user.name = name;
         if (avatar) {
             await removeFromCloudinary(user.avatar.public_id);
-            // file upload on cloudinary
-            // const fileUrl = getDataUri(avatar);
-            // if (!fileUrl.content) return next(new CustomError("Error While Making a Url of File", 400));
             const myCloud = await uploadOnCloudinary(avatar, "user-avatars");
             if (!myCloud?.public_id || !myCloud?.secure_url)
                 return next(new CustomError("Error While Uploading File", 500));
