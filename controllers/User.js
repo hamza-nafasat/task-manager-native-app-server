@@ -35,7 +35,7 @@ export const register = async (req, res) => {
         });
         await sendMail(email, "Verify your account", `Your OTP is ${otp}`);
         fs.rmSync("./tmp", { recursive: true });
-        sendToken(res, user, 201, "OTP sent to your email, please verify your account");
+        sendToken(res, user, 201, "OTP sent to your email, please verify your account from your profile");
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -197,14 +197,15 @@ export const updatePassword = async (req, res) => {
 export const forgetPassword = async (req, res) => {
     try {
         const { email } = req.body;
+        if (!email) return res.status(400).json({ success: false, message: "Please enter email" });
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ success: false, message: "Invalid Email" });
         const otp = Math.floor(Math.random() * 1000000);
         user.resetPasswordOtp = otp;
         user.resetPasswordOtpExpiry = Date.now() + 10 * 60 * 1000;
         await user.save();
-        const message = `Your OTP for reseting the password ${otp}. If you did not request for this, please ignore this email.`;
-        await sendMail(email, "Request for Reseting Password", message);
+        const message = `Your OTP for reset your password ${otp}. If you did not request for this, please ignore this email.`;
+        await sendMail(email, "Request for Reset Password", message);
         res.status(200).json({ success: true, message: `OTP sent to ${email}` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
