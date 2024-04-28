@@ -140,7 +140,7 @@ export const updateTask = async (req, res) => {
 
 export const getMyProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
+        const user = await User.findById(req.user?._id);
         sendToken(res, user, 201, `Welcome back ${user.name}`);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
