@@ -137,6 +137,7 @@ export const updateTask = async (req, res) => {
         await user.save();
         res.status(200).json({ success: true, message: "Task Updated successfully" });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
