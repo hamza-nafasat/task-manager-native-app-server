@@ -154,43 +154,43 @@ export const getMyProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        // const user = await User.findById(req.user._id);
-        // const { name } = req.body;
-        // const avatar = req.files.avatar.tempFilePath;
-
-        // if (name) user.name = name;
-        // if (avatar) {
-        //     await removeFromCloudinary(user.avatar.public_id);
-        //     const myCloud = await uploadOnCloudinary(avatar, "user-avatars");
-        //     if (!myCloud?.public_id || !myCloud?.secure_url)
-        //         return next(new CustomError("Error While Uploading File", 500));
-        //     // --------------------------------------------------------------------
-        //     user.avatar = {
-        //         public_id: myCloud.public_id,
-        //         url: myCloud.secure_url,
-        //     };
-        // }
-        // await user.save();
-        // res.status(200).json({ success: true, message: "Profile Updated successfully" });
         const user = await User.findById(req.user._id);
-
         const { name } = req.body;
         const avatar = req.files.avatar.tempFilePath;
 
         if (name) user.name = name;
         if (avatar) {
-            await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-            const mycloud = uploadOnCloudinary(avatar, "user-avatars");
-            fs.rmSync("./tmp", { recursive: true });
+            await removeFromCloudinary(user.avatar.public_id);
+            const myCloud = await uploadOnCloudinary(avatar, "user-avatars");
+            if (!myCloud?.public_id || !myCloud?.secure_url)
+                return next(new CustomError("Error While Uploading File", 500));
+            // --------------------------------------------------------------------
             user.avatar = {
-                public_id: mycloud.public_id,
-                url: mycloud.secure_url,
+                public_id: myCloud.public_id,
+                url: myCloud.secure_url,
             };
         }
-
         await user.save();
-
         res.status(200).json({ success: true, message: "Profile Updated successfully" });
+        // const user = await User.findById(req.user._id);
+
+        // const { name } = req.body;
+        // const avatar = req.files.avatar.tempFilePath;
+
+        // if (name) user.name = name;
+        // if (avatar) {
+        //     await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+        //     const mycloud = uploadOnCloudinary(avatar, "user-avatars");
+        //     fs.rmSync("./tmp", { recursive: true });
+        //     user.avatar = {
+        //         public_id: mycloud.public_id,
+        //         url: mycloud.secure_url,
+        //     };
+        // }
+
+        // await user.save();
+
+        // res.status(200).json({ success: true, message: "Profile Updated successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

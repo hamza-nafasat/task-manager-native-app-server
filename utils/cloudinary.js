@@ -24,9 +24,9 @@ export const configureCloudinary = async () => {
 };
 // UPLOAD FILE ON CLOUDINARY
 // =========================
-export const uploadOnCloudinary = async (fileName, subFolder) => {
+export const uploadOnCloudinary = async (file, subFolder) => {
     try {
-        const response = await cloudinary.v2.uploader.upload(fileName, {
+        const response = await cloudinary.v2.uploader.upload(file, {
             resource_type: "image",
             folder: `task-manager-mobile-app/${subFolder}`,
         });
