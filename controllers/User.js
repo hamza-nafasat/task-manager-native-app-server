@@ -155,6 +155,7 @@ export const updateProfile = async (req, res) => {
         const user = await User.findById(req.user._id);
         const { name } = req.body;
         const avatar = req.file.url;
+        console.log(avatar);
         if (name) user.name = name;
         if (avatar) {
             await removeFromCloudinary(user.avatar.public_id);
