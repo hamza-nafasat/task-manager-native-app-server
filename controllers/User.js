@@ -97,6 +97,8 @@ export const logout = async (req, res) => {
 export const addTask = async (req, res) => {
     try {
         const { title, description } = req.body;
+        if (!title || !description)
+            return res.status(400).json({ success: false, message: "Please enter title and description" });
         const user = await User.findById(req.user._id);
         user.tasks.push({
             title,
@@ -127,6 +129,9 @@ export const updateTask = async (req, res) => {
     try {
         const { taskId } = req.params;
         const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(400).json({ success: false, message: "User not found" });
+        }
         user.task = user.tasks.find((task) => task._id.toString() === taskId.toString());
         user.task.completed = !user.task.completed;
         await user.save();
