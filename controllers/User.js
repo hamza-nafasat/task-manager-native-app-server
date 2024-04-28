@@ -6,8 +6,7 @@ import { sendToken } from "../utils/sendToken.js";
 export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        const avatar = req.file;
-        console.log(req.body, avatar);
+        const avatar = req.file.url;
         if (!name || !email || !password) {
             return res
                 .status(400)
@@ -18,9 +17,9 @@ export const register = async (req, res) => {
         // if user not exist send otp
         const otp = Math.floor(Math.random() * 1000000);
         // file upload on cloudinary
-        const fileUrl = getDataUri(avatar);
-        if (!fileUrl.content) return next(new CustomError("Error While Making a Url of File", 400));
-        const myCloud = await uploadOnCloudinary(fileUrl.content, "user-avatars");
+        // const fileUrl = getDataUri(avatar);
+        // if (!fileUrl.content) return next(new CustomError("Error While Making a Url of File", 400));
+        const myCloud = await uploadOnCloudinary(avatar, "user-avatars");
         if (!myCloud?.public_id || !myCloud?.secure_url)
             return next(new CustomError("Error While Uploading File", 500));
         // --------------------------------------------------------------------

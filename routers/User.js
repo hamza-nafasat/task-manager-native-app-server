@@ -18,7 +18,7 @@ import { singleUpload } from "../middleware/multer.js";
 
 const router = express.Router();
 
-router.route("/register").post(singleUpload, register);
+router.route("/register").post(register);
 
 router.route("/verify").post(isAuthenticated, verify);
 
@@ -30,7 +30,7 @@ router.route("/me").get(isAuthenticated, getMyProfile);
 
 router.route("/task/:taskId").get(isAuthenticated, updateTask).delete(isAuthenticated, removeTask);
 
-router.route("/update-profile").put(isAuthenticated, singleUpload, updateProfile);
+router.route("/update-profile").put(isAuthenticated, updateProfile);
 router.route("/update-password").put(isAuthenticated, updatePassword);
 
 router.route("/forget-password").post(forgetPassword);
