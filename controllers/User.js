@@ -52,7 +52,7 @@ export const verify = async (req, res) => {
         user.otp = null;
         user.otp_expiry = null;
         await user.save();
-        sendToken(res, user, 200, "Account Verified");
+        sendToken(res, user, 200, "Your Account Verified Successfully");
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -66,13 +66,13 @@ export const login = async (req, res) => {
         }
         const user = await User.findOne({ email }).select("+password");
         if (!user) {
-            return res.status(400).json({ success: false, message: "Invalid Email or Password" });
+            return res.status(400).json({ success: false, message: "Invalid Email Address" });
         }
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Invalid Email or Password" });
+            return res.status(400).json({ success: false, message: "Incorrect Password" });
         }
-        sendToken(res, user, 200, "Login Successful");
+        sendToken(res, user, 200, "Welcome back " + user?.name.toUpperCase());
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -184,7 +184,7 @@ export const updatePassword = async (req, res) => {
         }
         const isMatch = await user.comparePassword(oldPassword);
         if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Invalid Old Password" });
+            return res.status(400).json({ success: false, message: "Invalid Old Password Please Try Again" });
         }
         user.password = newPassword;
         await user.save();
@@ -206,7 +206,7 @@ export const forgetPassword = async (req, res) => {
         await user.save();
         const message = `Your OTP for reset your password ${otp}. If you did not request for this, please ignore this email.`;
         await sendMail(email, "Request for Reset Password", message);
-        res.status(200).json({ success: true, message: `OTP sent to ${email}` });
+        res.status(200).json({ success: true, message: `OTP sent to this ${email}` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -226,7 +226,7 @@ export const resetPassword = async (req, res) => {
         user.resetPasswordOtp = null;
         user.resetPasswordExpiry = null;
         await user.save();
-        res.status(200).json({ success: true, message: `Password Changed Successfully` });
+        res.status(200).json({ success: true, message: `Password Changed Successfully Noe You Can Login` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
