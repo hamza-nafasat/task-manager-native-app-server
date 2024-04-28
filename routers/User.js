@@ -14,7 +14,6 @@ import {
     verify,
 } from "../controllers/User.js";
 import { isAuthenticated } from "../middleware/auth.js";
-import { singleUpload } from "../middleware/multer.js";
 
 const router = express.Router();
 

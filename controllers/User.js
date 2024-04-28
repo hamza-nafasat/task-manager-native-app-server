@@ -1,15 +1,14 @@
+import fs from "fs";
 import { User } from "../models/users.js";
-import getDataUri, { removeFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { removeFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { sendMail } from "../utils/sendMail.js";
 import { sendToken } from "../utils/sendToken.js";
-import cloudinary from "cloudinary";
-import fs from "fs";
 
 export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        const avatar = req.file.url;
-        if (!name || !email || !password) {
+        const avatar = req.files?.avatar?.tempFilePath;
+        if (!name || !email || !password || !avatar) {
             return res
                 .status(400)
                 .json({ success: false, message: "All fields name email password and avatar are required" });
@@ -19,8 +18,6 @@ export const register = async (req, res) => {
         // if user not exist send otp
         const otp = Math.floor(Math.random() * 1000000);
         // file upload on cloudinary
-        // const fileUrl = getDataUri(avatar);
-        // if (!fileUrl.content) return next(new CustomError("Error While Making a Url of File", 400));
         const myCloud = await uploadOnCloudinary(avatar, "user-avatars");
         if (!myCloud?.public_id || !myCloud?.secure_url)
             return next(new CustomError("Error While Uploading File", 500));
@@ -36,12 +33,10 @@ export const register = async (req, res) => {
             otp,
             otp_expiry: new Date(Date.now() + process.env.OTP_EXPIRE * 60 * 1000),
         });
-
         await sendMail(email, "Verify your account", `Your OTP is ${otp}`);
-
+        fs.rmSync("./tmp", { recursive: true });
         sendToken(res, user, 201, "OTP sent to your email, please verify your account");
     } catch (error) {
-        console.log(error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -156,11 +151,10 @@ export const updateProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         const { name } = req.body;
-        const avatar = req.files.avatar.tempFilePath;
-
+        const avatar = req.files?.avatar?.tempFilePath;
         if (name) user.name = name;
         if (avatar) {
-            // await removeFromCloudinary(user.avatar.public_id);
+            await removeFromCloudinary(user.avatar.public_id);
             const myCloud = await uploadOnCloudinary(avatar, "user-avatars");
             if (!myCloud?.public_id || !myCloud?.secure_url)
                 return next(new CustomError("Error While Uploading File", 500));
@@ -170,27 +164,9 @@ export const updateProfile = async (req, res) => {
                 url: myCloud.secure_url,
             };
         }
+        fs.rmSync("./tmp", { recursive: true });
         await user.save();
         res.status(200).json({ success: true, message: "Profile Updated successfully" });
-        // const user = await User.findById(req.user._id);
-
-        // const { name } = req.body;
-        // const avatar = req.files.avatar.tempFilePath;
-
-        // if (name) user.name = name;
-        // if (avatar) {
-        //     await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-        //     const mycloud = uploadOnCloudinary(avatar, "user-avatars");
-        //     fs.rmSync("./tmp", { recursive: true });
-        //     user.avatar = {
-        //         public_id: mycloud.public_id,
-        //         url: mycloud.secure_url,
-        //     };
-        // }
-
-        // await user.save();
-
-        // res.status(200).json({ success: true, message: "Profile Updated successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
